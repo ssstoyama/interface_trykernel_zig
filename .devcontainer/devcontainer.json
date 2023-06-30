@@ -1,0 +1,18 @@
+{
+  "name": "interface_trykernel_zig",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "runArgs": [
+    "--privileged"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "eamodio.gitlens",
+        "ziglang.vscode-zig",
+        "chris-hock.pioasm"
+      ]
+    }
+  }
+}
