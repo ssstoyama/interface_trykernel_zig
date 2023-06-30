@@ -1,0 +1,6 @@
+[submodule "modules/elf2uf2"]
+	path = modules/elf2uf2
+	url = https://github.com/rej696/elf2uf2.git
+[submodule "modules/interface_trykernel"]
+	path = modules/interface_trykernel
+	url = https://github.com/ytoyoyama/interface_trykernel.git
