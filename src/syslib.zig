@@ -1,3 +1,5 @@
+const sysdef = @import("./sysdef.zig");
+
 // 32bitレジスタからの入力
 pub fn in_w(addr: u32) u32 {
     return @as(*u32, @ptrFromInt(addr)).*;
@@ -50,4 +52,27 @@ pub fn DI() isize {
 // 割込み許可
 pub fn EI(intsts: isize) void {
     set_primask(intsts);
+}
+
+// UART0初期化
+pub fn tm_com_init() void {
+    // ボーレート設定
+    out_w(sysdef.UART0_BASE + sysdef.UARTx_IBRD, 67);
+    out_w(sysdef.UART0_BASE + sysdef.UARTx_FBRD, 52);
+    // データ形式設定
+    out_w(sysdef.UART0_BASE + sysdef.UARTx_LCR_H, 0x70);
+    // 通信有効化
+    out_w(sysdef.UART0_BASE + sysdef.UARTx_CR, sysdef.UART_CR_RXE | sysdef.UART_CR_TXE | sysdef.UART_CR_EN);
+}
+
+pub fn tm_putstring(str: []const u8) usize {
+    var cnt: usize = 0;
+    for (str) |c| {
+        // 送信FIFOの空き待ち
+        while (in_w(sysdef.UART0_BASE + sysdef.UARTx_FR) & sysdef.UART_FR_TXFF != 0) {}
+        // データ送信
+        out_w(sysdef.UART0_BASE + sysdef.UARTx_DR, c);
+        cnt += 1;
+    }
+    return cnt;
 }
