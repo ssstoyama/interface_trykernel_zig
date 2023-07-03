@@ -3,6 +3,7 @@ const apidef = trykernel.apidef;
 const config = trykernel.config;
 const context = trykernel.context;
 const knldef = trykernel.knldef;
+const sysdef = trykernel.sysdef;
 const syslib = trykernel.syslib;
 const typedef = trykernel.typedef;
 const KernelError = trykernel.KernelError;
@@ -10,7 +11,9 @@ const KernelError = trykernel.KernelError;
 // タスク管理ブロック (TCB)
 var tcb_tbl: [config.CNF_MAX_TSK_ID]knldef.TCB = [_]knldef.TCB{knldef.TCB{}} ** config.CNF_MAX_TSK_ID;
 // タスクのレディキュー
-var ready_queue: [config.CNF_MAX_TSK_PRI]knldef.TCB_Queue = [_]knldef.TCB_Queue{knldef.TCB_Queue.init()} ** config.CNF_MAX_TSK_PRI;
+pub var ready_queue: [config.CNF_MAX_TSK_PRI]knldef.TCB_Queue = [_]knldef.TCB_Queue{knldef.TCB_Queue.init()} ** config.CNF_MAX_TSK_PRI;
+// 時間待ち状態のタスクの待ち行列(ウェイトキュー)
+pub var wait_queue: knldef.TCB_Queue = knldef.TCB_Queue.init();
 // 実行中のタスク
 export var cur_task: ?*knldef.TCB = null;
 // 次に実行するタスク
@@ -76,6 +79,26 @@ pub fn tk_ext_tsk() void {
         ready_queue[task.itskpri].remove_top();
         schedule();
     }
+}
+
+// タスクの実行遅延 API
+pub fn tk_dly_tsk(dlytim: typedef.RELTIM) KernelError!void {
+    const intsts = syslib.DI();
+    defer syslib.EI(intsts);
+
+    if (dlytim <= 0) return;
+    var task = cur_task orelse return;
+    ready_queue[task.itskpri].remove_top();
+
+    // タスクの状態を待ち状態に変更
+    task.state = .TS_WAIT;
+    // 待ち要因を設定
+    task.waifct = .TWFCT_DLY;
+    // 待ち時間を設定
+    task.waitim = dlytim + sysdef.TIMER_PERIOD;
+
+    wait_queue.add_entry(task);
+    schedule();
 }
 
 // タスクのスケジューリング

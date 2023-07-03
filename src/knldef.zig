@@ -2,6 +2,7 @@ const trykernel = @import("./trykernel.zig");
 const context = trykernel.context;
 const syslib = trykernel.syslib;
 const typedef = trykernel.typedef;
+const KernelError = trykernel.KernelError;
 
 // タスク状態
 pub const TSTAT = enum(u8) {
@@ -13,6 +14,14 @@ pub const TSTAT = enum(u8) {
     TS_WAIT = 2,
     // 休止状態
     TS_DORMANT = 3,
+};
+
+// タスクの待ち要因
+pub const TWFCT = enum(u8) {
+    // 無し
+    TWFCT_NON = 0,
+    // tk_dly_tskによる時間待ち
+    TWFCT_DLY = 1,
 };
 
 pub const TCB = struct {
@@ -32,6 +41,10 @@ pub const TCB = struct {
     stkadr: u32 = undefined,
     // スタックのサイズ
     stksz: typedef.SZ = undefined,
+
+    waifct: TWFCT = undefined,
+    waitim: typedef.RELTIM = undefined,
+    waierr: KernelError = undefined,
 };
 
 pub const TCB_Queue = struct {

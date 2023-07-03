@@ -1,27 +1,40 @@
 const trykernel = @import("../trykernel.zig");
 const apidef = trykernel.apidef;
 const logger = trykernel.logger;
+const sysdef = trykernel.sysdef;
 const syslib = trykernel.syslib;
 const task = trykernel.task;
 const typedef = trykernel.typedef;
 
-var tskstk_1: [1024]u8 = [_]u8{0} ** 1024;
+var tskstk_1: [2048]u8 = [_]u8{0} ** 2048;
 var tskid_1: typedef.ID = undefined;
 fn task_1(stacd: isize, exinf: *anyopaque) void {
     _ = exinf;
     _ = stacd;
     logger.DEBUG("Start Task-1\n", .{});
-    task.tk_ext_tsk();
+    while (true) {
+        syslib.out_w(sysdef.GPIO_OUT_XOR, (1 << 25));
+        task.tk_dly_tsk(800) catch |err| {
+            const msg = logger.ERROR(err);
+            @panic(msg);
+        };
+    }
 }
 var ctsk_1: apidef.T_CTSK = undefined;
 
-var tskstk_2: [1024]u8 = [_]u8{0} ** 1024;
+var tskstk_2: [2048]u8 = [_]u8{0} ** 2048;
 var tskid_2: typedef.ID = undefined;
 fn task_2(stacd: isize, exinf: *anyopaque) void {
     _ = exinf;
     _ = stacd;
     logger.DEBUG("Start Task-2\n", .{});
-    task.tk_ext_tsk();
+    while (true) {
+        _ = syslib.tm_putstring("Hello\n");
+        task.tk_dly_tsk(1000) catch |err| {
+            const msg = logger.ERROR(err);
+            @panic(msg);
+        };
+    }
 }
 var ctsk_2: apidef.T_CTSK = undefined;
 

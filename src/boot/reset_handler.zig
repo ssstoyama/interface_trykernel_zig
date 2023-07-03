@@ -168,13 +168,13 @@ fn init_section() void {
 // システムタイマの初期化
 fn init_system() void {
     // SysTick動作停止
-    syslib.out_w(sysdef.SYST_CSR, sysdef.SYST_CSR_CLKSOURCE);
+    syslib.out_w(sysdef.SYST_CSR, sysdef.SYST_CSR_CLKSOURCE | sysdef.SYST_CSR_TICKINT);
     // リロード値設定
     syslib.out_w(sysdef.SYST_RVR, (sysdef.TIMER_PERIOD * sysdef.TMCLK_KHz) - 1);
     // カウント値設定
     syslib.out_w(sysdef.SYST_CVR, (sysdef.TIMER_PERIOD * sysdef.TMCLK_KHz) - 1);
     // SysTick動作開始
-    syslib.out_w(sysdef.SYST_CSR, sysdef.SYST_CSR_CLKSOURCE | sysdef.SYST_CSR_ENABLE);
+    syslib.out_w(sysdef.SYST_CSR, sysdef.SYST_CSR_CLKSOURCE | sysdef.SYST_CSR_TICKINT | sysdef.SYST_CSR_ENABLE);
 }
 
 // リセットハンドラ
