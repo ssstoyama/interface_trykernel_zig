@@ -5,15 +5,18 @@ const tm_putstring = @import("./syslib.zig").tm_putstring;
 pub fn DEBUG(comptime fmt: []const u8, args: anytype) void {
     var buf: [256]u8 = undefined;
     const text = std.fmt.bufPrint(&buf, fmt, args) catch |err| {
-        ERROR(err);
-        @panic(@errorName(err));
+        const msg = ERROR(err);
+        @panic(msg);
     };
     _ = tm_putstring("DEBUG: ");
     _ = tm_putstring(text);
 }
 
-pub fn ERROR(err: anyerror) void {
-    _ = tm_putstring("ERROR: ");
-    _ = tm_putstring(@errorName(err));
-    _ = tm_putstring("\n");
+pub fn ERROR(err: anyerror) []const u8 {
+    var buf: [256]u8 = undefined;
+    const msg = std.fmt.bufPrint(&buf, "ERROR: {}\n", .{err}) catch |er| {
+        @panic(@errorName(er));
+    };
+    _ = tm_putstring(msg);
+    return msg;
 }

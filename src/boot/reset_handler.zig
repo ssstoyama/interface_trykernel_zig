@@ -1,6 +1,6 @@
 const sysdef = @import("../sysdef.zig");
 const syslib = @import("../syslib.zig");
-const main = @import("../app/main.zig").main;
+const main = @import("../init.zig").main;
 
 // メモリセクションのアドレス変数
 extern const __data_org: anyopaque;

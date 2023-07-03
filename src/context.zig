@@ -1,5 +1,6 @@
 const trykernel = @import("./trykernel.zig");
-const syslib = @import("./syslib.zig");
+const syslib = trykernel.syslib;
+const typedef = trykernel.typedef;
 
 // スタック上の実行コンテキスト情報
 pub const StackFrame = extern struct {
@@ -18,13 +19,13 @@ pub const StackFrame = extern struct {
 };
 
 // 初期実行コンテキストの作成
-pub fn make_context(sp: u32, ssize: usize, fp: u32) *StackFrame {
+pub fn make_context(sp: u32, ssize: usize, fp: typedef.FP) *StackFrame {
     // スタック上の実行コンテクスト情報へのポインタをsfpに設定
     var sfp: *StackFrame = @ptrFromInt(sp + ssize - @sizeOf(StackFrame));
 
     // 実行コンテキスト情報の初期化
     sfp.xpsr = 0x0100_0000;
-    sfp.pc = @truncate(fp & ~@as(u32, 0x0000_0001));
+    sfp.pc = @truncate(fp & ~@as(typedef.FP, 0x0000_0001));
 
     return sfp;
 }
