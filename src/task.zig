@@ -101,6 +101,63 @@ pub fn tk_dly_tsk(dlytim: typedef.RELTIM) KernelError!void {
     schedule();
 }
 
+// タスク起床待ちAPI
+pub fn tk_slp_tsk(tmout: typedef.TMO) KernelError!void {
+    const intsts = syslib.DI();
+    defer syslib.EI(intsts);
+
+    var task = cur_task orelse return;
+    // 起床要求有り
+    if (task.wupcnt > 0) {
+        task.wupcnt -= 1;
+        return;
+    }
+    // 起床要求無し
+    ready_queue[task.itskpri].remove_top();
+
+    // タスクの状態を待ち状態に変更
+    task.state = .TS_WAIT;
+    // 待ち要因を設定
+    task.waifct = .TWFCT_SLP;
+    // 待ち時間を設定
+    if (tmout == apidef.TMO_FEVR) {
+        task.waitim = tmout;
+    } else {
+        task.waitim = tmout + sysdef.TIMER_PERIOD;
+    }
+
+    wait_queue.add_entry(task);
+    schedule();
+}
+
+// タスクの起床 API
+pub fn tk_wup_tsk(tskid: typedef.ID) KernelError!void {
+    if (tskid <= 0 or tskid > config.CNF_MAX_TSK_ID) return KernelError.ID;
+
+    const intsts = syslib.DI();
+    defer syslib.EI(intsts);
+
+    var tcb = &tcb_tbl[tskid - 1];
+    // tk_slp_tskで待ち状態か？
+    if (tcb.state == .TS_WAIT and tcb.waifct == .TWFCT_SLP) {
+        wait_queue.remove_entry(tcb);
+
+        tcb.state = .TS_READY;
+        tcb.waifct = .TWFCT_NON;
+
+        ready_queue[tcb.itskpri].add_entry(tcb);
+        schedule();
+        return;
+    }
+    // 実行できる状態の場合
+    if (tcb.state == .TS_READY or tcb.state == .TS_WAIT) {
+        // 起床要求数を増やす
+        tcb.wupcnt += 1;
+        return;
+    }
+    return KernelError.OBJ;
+}
+
 // タスクのスケジューリング
 pub fn schedule() void {
     var i: usize = 0;

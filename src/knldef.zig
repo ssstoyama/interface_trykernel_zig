@@ -22,6 +22,8 @@ pub const TWFCT = enum(u8) {
     TWFCT_NON = 0,
     // tk_dly_tskによる時間待ち
     TWFCT_DLY = 1,
+    // tk_slp_tskによる起床待ち
+    TWFCT_SLP = 2,
 };
 
 pub const TCB = struct {
@@ -42,8 +44,14 @@ pub const TCB = struct {
     // スタックのサイズ
     stksz: typedef.SZ = undefined,
 
+    // 起床要求数
+    wupcnt: isize = undefined,
+
+    // 待ち要因
     waifct: TWFCT = undefined,
+    // 待ち時間
     waitim: typedef.RELTIM = undefined,
+    // 待ち解除のエラーコード
     waierr: KernelError = undefined,
 };
 
