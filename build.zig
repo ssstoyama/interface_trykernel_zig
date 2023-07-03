@@ -23,6 +23,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     entry.addObject(boot2);
+    entry.addAssemblyFile("./src/dispatch.S");
     entry.setLinkerScriptPath(.{ .path = "src/linker/pico_memmap.ld" });
     b.installArtifact(entry);
 
