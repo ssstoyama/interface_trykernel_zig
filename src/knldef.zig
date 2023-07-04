@@ -24,6 +24,8 @@ pub const TWFCT = enum(u8) {
     TWFCT_DLY = 1,
     // tk_slp_tskによる起床待ち
     TWFCT_SLP = 2,
+    // tk_wai_flgによるフラグ待ち
+    TWFCT_FLG = 3,
 };
 
 pub const TCB = struct {
@@ -53,6 +55,13 @@ pub const TCB = struct {
     waitim: typedef.RELTIM = undefined,
     // 待ち解除のエラーコード
     waierr: KernelError = undefined,
+
+    // 待ちフラグパターン
+    waiptn: usize = undefined,
+    // 待ちモード
+    wfmode: usize = undefined,
+    // 待ち解除時のフラグパターン
+    p_flgptn: usize = undefined,
 };
 
 pub const TCB_Queue = struct {
@@ -140,6 +149,18 @@ const ICSR_PENDSVSET = 1 << 28;
 pub fn dispatch() void {
     syslib.out_w(SCB_ICSR, ICSR_PENDSVSET);
 }
+
+// カーネルオブジェクト状態
+pub const KSSTAT = enum(u8) {
+    KS_NONEXIST = 1,
+    KS_EXIST = 2,
+};
+
+// イベントフラグ管理情報(FLGCB)
+pub const FLGCB = struct {
+    state: KSSTAT = undefined,
+    flgptn: usize = undefined,
+};
 
 const testing = @import("std").testing;
 test "TCB_Queue" {

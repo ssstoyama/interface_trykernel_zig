@@ -15,7 +15,7 @@ pub var ready_queue: [config.CNF_MAX_TSK_PRI]knldef.TCB_Queue = [_]knldef.TCB_Qu
 // 時間待ち状態のタスクの待ち行列(ウェイトキュー)
 pub var wait_queue: knldef.TCB_Queue = knldef.TCB_Queue.init();
 // 実行中のタスク
-export var cur_task: ?*knldef.TCB = null;
+pub export var cur_task: ?*knldef.TCB = null;
 // 次に実行するタスク
 export var sche_task: ?*knldef.TCB = null;
 // ディスパッチャ実行中

@@ -26,3 +26,33 @@ pub const TA_RNG0 = 0x0000_0000;
 pub const TA_RNG1 = 0x0000_0100;
 pub const TA_RNG2 = 0x0000_0200;
 pub const TA_RNG3 = 0x0000_0300;
+
+// 待ちタスクをFIFO順で管理
+pub const TA_TFIFO = 0x0000_0000;
+// 待ちタスクを優先度順で管理
+pub const TA_TPRI = 0x0000_0001;
+// 待ち行列先頭のタスクを優先
+pub const TA_FIRST = 0x0000_0000;
+// 要求数の少ないタスクを優先
+pub const TA_CNT = 0x0000_0002;
+// 複数タスクの待ちを許さない
+pub const TA_WFGL = 0x0000_0000;
+// 複数タスクの待ちを許す
+pub const TA_WMUL = 0x0000_0008;
+
+// イベントフラグ生成情報
+pub const T_CFLG = struct {
+    // イベントフラグ属性
+    flgatr: typedef.ATR,
+    // イベントフラグ初期値
+    iflgptn: usize,
+};
+
+// AND待ち
+pub const TWF_ANDW: usize = 0x0000_0000;
+// OR待ち
+pub const TWF_ORW: usize = 0x0000_0001;
+// 全ビットのクリア
+pub const TWF_CLR: usize = 0x0000_0010;
+// 条件ビットのみクリア
+pub const TWF_BITCLR: usize = 0x0000_0020;
