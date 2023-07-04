@@ -56,3 +56,12 @@ pub const TWF_ORW: usize = 0x0000_0001;
 pub const TWF_CLR: usize = 0x0000_0010;
 // 条件ビットのみクリア
 pub const TWF_BITCLR: usize = 0x0000_0020;
+
+pub const T_CSEM = struct {
+    // セマフォ属性
+    sematr: typedef.ATR,
+    // セマフォ資源数の初期値
+    isemcnt: isize,
+    // セマフォ資源数の最大値
+    maxsem: isize,
+};

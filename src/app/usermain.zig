@@ -2,6 +2,7 @@ const trykernel = @import("../trykernel.zig");
 const apidef = trykernel.apidef;
 const eventflag = trykernel.eventflag;
 const logger = trykernel.logger;
+const semaphore = trykernel.semaphore;
 const sysdef = trykernel.sysdef;
 const syslib = trykernel.syslib;
 const task = trykernel.task;
@@ -11,6 +12,13 @@ var flgid: typedef.ID = 0;
 var cflg: apidef.T_CFLG = .{
     .flgatr = apidef.TA_TFIFO | apidef.TA_WMUL,
     .iflgptn = 0,
+};
+
+var semid: typedef.ID = 0;
+var csem: apidef.T_CSEM = .{
+    .sematr = apidef.TA_TFIFO | apidef.TA_FIRST,
+    .isemcnt = 1,
+    .maxsem = 1,
 };
 
 var tskstk_btn: [4096]u8 = [_]u8{0} ** 4096;
@@ -69,6 +77,10 @@ fn task_led1(stacd: isize, exinf: *anyopaque) void {
             const msg = logger.ERROR(err);
             @panic(msg);
         };
+        semaphore.tk_wai_sem(semid, 1, apidef.TMO_FEVR) catch |err| {
+            const msg = logger.ERROR(err);
+            @panic(msg);
+        };
 
         var i: usize = 0;
         while (i < 3) : (i += 1) {
@@ -83,6 +95,10 @@ fn task_led1(stacd: isize, exinf: *anyopaque) void {
                 @panic(msg);
             };
         }
+        semaphore.tk_sig_sem(semid, 1) catch |err| {
+            const msg = logger.ERROR(err);
+            @panic(msg);
+        };
     }
 }
 var ctsk_led1: apidef.T_CTSK = undefined;
@@ -100,6 +116,10 @@ fn task_led2(stacd: isize, exinf: *anyopaque) void {
             const msg = logger.ERROR(err);
             @panic(msg);
         };
+        semaphore.tk_wai_sem(semid, 1, apidef.TMO_FEVR) catch |err| {
+            const msg = logger.ERROR(err);
+            @panic(msg);
+        };
 
         var i: usize = 0;
         while (i < 5) : (i += 1) {
@@ -114,6 +134,10 @@ fn task_led2(stacd: isize, exinf: *anyopaque) void {
                 @panic(msg);
             };
         }
+        semaphore.tk_sig_sem(semid, 1) catch |err| {
+            const msg = logger.ERROR(err);
+            @panic(msg);
+        };
     }
 }
 var ctsk_led2: apidef.T_CTSK = undefined;
@@ -144,6 +168,7 @@ fn main() !void {
     };
 
     flgid = try eventflag.tk_cre_flg(cflg);
+    semid = try semaphore.tk_cre_sem(csem);
 
     tskid_btn = try task.tk_cre_tsk(&ctsk_btn);
     try task.tk_sta_tsk(tskid_btn, 0);

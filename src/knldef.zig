@@ -26,6 +26,8 @@ pub const TWFCT = enum(u8) {
     TWFCT_SLP = 2,
     // tk_wai_flgによるフラグ待ち
     TWFCT_FLG = 3,
+    // tk_wai_semによる資源待ち
+    TWFCT_SEM = 4,
 };
 
 pub const TCB = struct {
@@ -62,6 +64,9 @@ pub const TCB = struct {
     wfmode: usize = undefined,
     // 待ち解除時のフラグパターン
     p_flgptn: usize = undefined,
+
+    // セマフォ資源要求数
+    waisem: isize = undefined,
 };
 
 pub const TCB_Queue = struct {
@@ -160,6 +165,16 @@ pub const KSSTAT = enum(u8) {
 pub const FLGCB = struct {
     state: KSSTAT = undefined,
     flgptn: usize = undefined,
+};
+
+// セマフォ管理情報(SEMCB)
+pub const SEMCB = struct {
+    // セマフォ状態
+    state: KSSTAT,
+    // セマフォ値
+    semcnt: isize,
+    // セマフォ最大値
+    maxsem: isize,
 };
 
 const testing = @import("std").testing;
